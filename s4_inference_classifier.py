@@ -3,6 +3,29 @@ import pickle
 import cv2
 import mediapipe as mp
 import numpy as np
+import openai
+from googleapiclient.discovery import build
+
+my_api_key = "AIzaSyBc35KWebG-mhquGQeZML-_J3g5VyDurQA" #The API_KEY
+my_cse_id = "305af84e382b84402" #The search-engine-ID
+openai.api_key = "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"
+
+def google_search(search_term, api_key, cse_id, **kwargs):
+    service = build("customsearch", "v1", developerKey=api_key)
+    res = service.cse().list(q=search_term, cx=cse_id, **kwargs).execute()
+    return res['items']
+
+def chat_with_chatgpt(prompt, model="gpt-3.5-turbo"):
+    response = openai.Completion.create(
+        engine=model,
+        prompt=prompt,
+        max_tokens=100,
+        n=1,
+        stop=None,
+        temperature=0.5,
+    )
+    message = response.choices[0].text.strip()
+    return message
 
 model_dict = pickle.load(open('./model.p', 'rb'))
 model = model_dict['model']
@@ -18,6 +41,7 @@ hands = mp_hands.Hands(static_image_mode=True, min_detection_confidence=0.3)
 #character_counts = {',': 0, ' ': 0, 'A': 0, 'C': 0, 'I': 0, 'L': 0, 'O': 0, 'P': 0, 'T': 0, 'U': 0, 'S': 0}
 labels_dict = {0: ',', 1: ' ', 2: 'N', 3: 'E', 4: 'W', 5: 'S'}
 character_counts = {',': 0, ' ': 0, 'N': 0, 'E': 0, 'W': 0, 'S': 0}
+queryQ = ""
 numLetter = 0
 repeat = 50
 while True:
@@ -72,6 +96,7 @@ while True:
         for char, count in character_counts.items():
             if count > repeat:
                 print(char, end = "", flush=True)
+                queryQ += char
                 character_counts = dict.fromkeys(character_counts, 0)
                 numLetter += 1
 
@@ -89,6 +114,38 @@ while True:
     
     if cv2.waitKey(10) & 0xFF == ord('q'):
         break
+
+    if cv2.waitKey(10) & 0xFF == ord('g'):
+        retries = 4
+        while retries > 0 : 
+            try : 
+                results = google_search(queryQ, my_api_key, my_cse_id, num=10) # "top news" "upcoming events"
+                print(results[0]["title"])
+                break
+            except:
+              retries = retries - 1
+
+        queryQ = ""
+
+    if cv2.waitKey(10) & 0xFF == ord('o'):
+        messages = [ {"role": "system", "content": "You are a intelligent assistant."} ]
+        # while True:
+        message = queryQ # input("User : ")
+        if message:
+            messages.append(
+                {"role": "user", "content": message},
+            )
+            chat = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo", messages=messages
+            )
+
+        reply = chat.choices[0].message.content
+        print(f"ChatGPT: {reply}")
+        messages.append({"role": "assistant", "content": reply})
+
+        list(filter(lambda x: x["role"] == "assistant",messages))[0]["content"]
+
+        queryQ = ""
 
 
 cap.release()
