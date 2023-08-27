@@ -1,0 +1,61 @@
+!pip3 install google-api-python-client
+
+from googleapiclient.discovery import build
+
+my_api_key = "AIzaSyBc35KWebG-mhquGQeZML-_J3g5VyDurQA" #The API_KEY
+my_cse_id = "305af84e382b84402" #The search-engine-ID
+
+
+def google_search(search_term, api_key, cse_id, **kwargs):
+    service = build("customsearch", "v1", developerKey=api_key)
+    res = service.cse().list(q=search_term, cx=cse_id, **kwargs).execute()
+    return res['items']
+
+retries = 4
+while retries > 0 : 
+    try : 
+        results = google_search('"Capital of california" ', my_api_key, my_cse_id, num=10) # "top news" "upcoming events"
+        print(results[0]["title"])
+        break
+    except:
+      retries = retries - 1
+
+
+!pip3 install openai
+
+import openai
+
+openai.api_key = "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"
+def chat_with_chatgpt(prompt, model="gpt-3.5-turbo"):
+    response = openai.Completion.create(
+        engine=model,
+        prompt=prompt,
+        max_tokens=100,
+        n=1,
+        stop=None,
+        temperature=0.5,
+    )
+
+    message = response.choices[0].text.strip()
+    return message
+
+# user_prompt = "Write a summary of the benefits of exercise."
+# chatbot_response = chat_with_chatgpt(user_prompt)
+# print(chatbot_response)
+
+messages = [ {"role": "system", "content": "You are a intelligent assistant."} ]
+# while True:
+message = "capital of california" # input("User : ")
+if message:
+    messages.append(
+        {"role": "user", "content": message},
+    )
+    chat = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo", messages=messages
+    )
+
+reply = chat.choices[0].message.content
+print(f"ChatGPT: {reply}")
+messages.append({"role": "assistant", "content": reply})
+
+list(filter(lambda x: x["role"] == "assistant",messages))[0]["content"]
