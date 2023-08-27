@@ -8,7 +8,7 @@ from googleapiclient.discovery import build
 
 my_api_key = "AIzaSyBc35KWebG-mhquGQeZML-_J3g5VyDurQA" #The API_KEY
 my_cse_id = "305af84e382b84402" #The search-engine-ID
-openai.api_key = "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"
+openai.api_key = "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"
 
 def google_search(search_term, api_key, cse_id, **kwargs):
     service = build("customsearch", "v1", developerKey=api_key)
@@ -149,6 +149,7 @@ while True:
             )
 
         reply = chat.choices[0].message.content
+        print(".")
         print(f"ChatGPT: {reply}")
         print("===============================")
         messages.append({"role": "assistant", "content": reply})
