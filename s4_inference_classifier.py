@@ -87,7 +87,7 @@ while True:
         x2 = int(max(x_) * W) - 10
         y2 = int(max(y_) * H) - 10
 
-        prediction = model.predict([np.asarray(data_aux)])
+        prediction = model.predict([np.asarray(data_aux[:42])])
         
         predicted_character = labels_dict[int(prediction[0])]
 
