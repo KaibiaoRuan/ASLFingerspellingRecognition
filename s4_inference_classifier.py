@@ -39,11 +39,12 @@ mp_drawing_styles = mp.solutions.drawing_styles
 hands = mp_hands.Hands(static_image_mode=True, min_detection_confidence=0.3)
 #labels_dict = {0: ',', 1: ' ', 2: 'A', 3: 'C', 4: 'I', 5: 'L', 6: 'O', 7: 'P', 8: 'T', 9: 'U', 10: 'S'}
 #character_counts = {',': 0, ' ': 0, 'A': 0, 'C': 0, 'I': 0, 'L': 0, 'O': 0, 'P': 0, 'T': 0, 'U': 0, 'S': 0}
-labels_dict = {0: ',', 1: ' ', 2: 'N', 3: 'E', 4: 'W', 5: 'S'}
-character_counts = {',': 0, ' ': 0, 'N': 0, 'E': 0, 'W': 0, 'S': 0}
+labels_dict = {0: ',', 1: ' ', 2: 'n', 3: 'e', 4: 'w', 5: 's'}
+character_counts = {',': 0, ' ': 0, 'n': 0, 'e': 0, 'w': 0, 's': 0}
 queryQ = ""
 numLetter = 0
 repeat = 50
+
 while True:
 
     data_aux = []
@@ -95,7 +96,12 @@ while True:
 
         for char, count in character_counts.items():
             if count > repeat:
-                print(char, end = "", flush=True)
+                if numLetter == 0:
+                    print("\n===============================")
+                    print("User: ", end = "", flush=True)
+                    print(char.capitalize(), end = "", flush=True)
+                else:
+                    print(char, end = "", flush=True)
                 queryQ += char
                 character_counts = dict.fromkeys(character_counts, 0)
                 numLetter += 1
@@ -120,12 +126,15 @@ while True:
         while retries > 0 : 
             try : 
                 results = google_search(queryQ, my_api_key, my_cse_id, num=10) # "top news" "upcoming events"
-                print(results[0]["title"])
+                print(".")
+                print(f"Google: {results[0]['title']}")
+                print("\n===============================")
                 break
             except:
               retries = retries - 1
 
         queryQ = ""
+        numLetter = 0
 
     if cv2.waitKey(10) & 0xFF == ord('o'):
         messages = [ {"role": "system", "content": "You are a intelligent assistant."} ]
@@ -141,11 +150,13 @@ while True:
 
         reply = chat.choices[0].message.content
         print(f"ChatGPT: {reply}")
+        print("===============================")
         messages.append({"role": "assistant", "content": reply})
 
         list(filter(lambda x: x["role"] == "assistant",messages))[0]["content"]
 
         queryQ = ""
+        numLetter = 0
 
 
 cap.release()
