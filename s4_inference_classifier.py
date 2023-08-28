@@ -6,9 +6,9 @@ import numpy as np
 import openai
 from googleapiclient.discovery import build
 
-my_api_key = "AIzaSyBc35KWebG-mhquGQeZML-_J3g5VyDurQA" #The API_KEY
-my_cse_id = "305af84e382b84402" #The search-engine-ID
-openai.api_key = "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"
+my_api_key = "The Google API_KEY" #The Google API_KEY
+my_cse_id = "The search-engine-ID" #The search-engine-ID
+openai.api_key = "Your OpenAI API_KEY" #The OpenAI API_KEY
 
 def google_search(search_term, api_key, cse_id, **kwargs):
     service = build("customsearch", "v1", developerKey=api_key)
